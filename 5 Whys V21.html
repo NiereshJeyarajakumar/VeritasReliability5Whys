@@ -1,0 +1,469 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>RCA Timeline + 5 Why Tool — Veritas Reliability</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #fff;
+  color: #000;
+  max-width: 1000px;
+  margin: 40px auto;
+}
+h2 { margin-bottom: 10px; color: #000; }
+
+.card {
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 20px;
+  background: #fff;
+  margin-top: 20px;
+}
+
+/* ✅ Buttons non-bold */
+button {
+  background: #C2965B;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 400; 
+  cursor: pointer;
+  margin: 6px 6px 0 0;
+}
+button:hover { opacity: .9 }
+
+/* ✅ Section header colours */
+.header {
+  background: #0B1C36;  
+  color: #C2965B;       
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px 8px 0 0;
+  font-size: 16px;
+}
+
+/* TIMELINE SECTION */
+.timeline-wrapper {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+.timeline-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+  margin-top: 10px;
+}
+.row-arrow {
+  font-weight: bold;
+  font-size: 20px;
+  color: #000;
+  margin-right: 8px;
+}
+.event {
+  position: relative;
+  width: 180px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.event::after {
+  content: "→";
+  position: absolute;
+  top: 50%;
+  right: -16px;
+  transform: translateY(-50%);
+  font-weight: bold;
+  color: #000;
+}
+.event:last-child::after { content: ""; }
+.delete-btn {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  border: none;
+  background: transparent;
+  color: #666;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.delete-btn:hover { color: #C2965B; }
+.event textarea {
+  width: 100%;
+  min-height: 60px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 6px;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+/* Failure card */
+.failure-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.failure-arrow {
+  font-weight: bold;
+  font-size: 20px;
+  color: #000;
+}
+.failure {
+  background: #0B1C36;
+  color: #C2965B;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  width: 220px;
+  flex-shrink: 0;
+}
+.failure textarea {
+  width: 100%;
+  min-height: 70px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 6px;
+  resize: vertical;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+/* DETAILS CARD */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 10px;
+}
+.details-grid label {
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+.details-grid input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* 5 WHY SECTION */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  table-layout: fixed;
+}
+colgroup col:first-child { width: 15%; }
+colgroup col:not(:first-child) { width: 28.33%; }
+
+/* ✅ Table header colours updated */
+th {
+  background: #C2965B;     /* gold */
+  color: #0B1C36;          /* navy text */
+  font-weight: 700;
+  font-size: 14px;
+}
+
+td {
+  border: 1px solid #000;
+  padding: 8px;
+  vertical-align: top;
+  text-align: left;
+}
+
+/* ✅ Reduced header height */
+table thead tr th {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  height: 30px !important;
+  vertical-align: middle !important;
+}
+
+td:first-child {
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+textarea {
+  width: 100%;
+  min-height: 60px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 6px 8px;
+  resize: vertical;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+#problem {
+  width: 100%;
+  min-height: 70px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 10px;
+  resize: vertical;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  box-sizing: border-box;
+  margin-top: 8px;
+}
+
+/* ACTIONS TABLE */
+#actionsTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  table-layout: fixed;
+}
+
+/* ✅ Actions table header colours updated */
+#actionsTable th {
+  background: #C2965B;
+  color: #0B1C36;
+  font-weight: bold;
+  text-align: center;
+  border: 1px solid #000;
+}
+
+#actionsTable td {
+  border: 1px solid #000;
+  vertical-align: top;
+  text-align: left;
+  padding: 6px;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+#actionsTable th:first-child,
+#actionsTable td:first-child { width: 5%; text-align: center; font-weight: bold; }
+
+#actionsTable th:nth-child(2),
+#actionsTable td:nth-child(2) { width: 58%; }
+
+#actionsTable th:nth-child(3),
+#actionsTable th:nth-child(4),
+#actionsTable th:nth-child(5),
+#actionsTable td:nth-child(3),
+#actionsTable td:nth-child(4),
+#actionsTable td:nth-child(5) { width: 12%; text-align: center; }
+
+#actionsTable th:nth-child(6),
+#actionsTable td:nth-child(6) { width: 5%; text-align: center; }
+
+#actionsTable textarea,
+#actionsTable select {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 5px 8px;
+  box-sizing: border-box;
+}
+
+.add-btn {
+  background: #C2965B;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 400;
+  cursor: pointer;
+  margin-top: 12px;
+}
+.add-btn:hover { opacity: .9; }
+
+.delete-action {
+  background: transparent;
+  color: #C2965B;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.delete-action:hover { color: #000; }
+
+</style>
+</head>
+
+<body>
+<h2>Root Cause Analysis — Veritas Reliability</h2>
+
+<!-- TIMELINE SECTION -->
+<div class="card">
+  <div class="header">Event Timeline</div>
+  <div>
+    <button id="addPre">Add Pre-Event</button>
+    <button id="clearPre">Clear All Pre-Events</button>
+    <button id="addPost">Add Post-Event</button>
+    <button id="clearPost">Clear All Post-Events</button>
+    <button id="exportPDF">Download RCA as PDF</button>
+  </div>
+
+  <div class="timeline-wrapper">
+    <div id="preGrid"></div>
+    <div class="failure-wrapper">
+      <div class="failure-arrow">→</div>
+      <div class="failure">
+        Failure / Defect<br><small>(Event 0)</small>
+        <textarea id="failureDesc" placeholder="Describe failure or defect..."></textarea>
+      </div>
+      <div class="failure-arrow">→</div>
+    </div>
+    <div id="postGrid"></div>
+  </div>
+</div>
+
+<!-- DETAILS CARD -->
+<div id="detailsCard" class="card">
+  <div class="header">Event Details</div>
+  <div class="details-grid">
+    <div><label>Date</label><input type="date"></div>
+    <div><label>Time</label><input type="time"></div>
+    <div><label>Plant / Unit ID</label><input type="text" placeholder="e.g. TC03 Conveyor"></div>
+    <div><label>Duration (hrs)</label><input type="number" step="0.1"></div>
+  </div>
+</div>
+
+<!-- 5 WHY SECTION -->
+<div id="whyCard" class="card">
+  <div class="header">Problem / Defect</div>
+  <textarea id="problem" placeholder="Describe the problem or defect..."></textarea>
+
+  <table>
+    <colgroup><col><col><col><col></colgroup>
+    <thead>
+      <tr><th>WHY Level</th><th>What caused the specific situation?</th><th>Why wasn’t the problem detected?</th><th>What system(s) failed?</th></tr>
+    </thead>
+    <tbody id="whyTable">
+      <tr><td>1st WHY?</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td></tr>
+      <tr><td>2nd WHY?</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td></tr>
+      <tr><td>3rd WHY?</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td></tr>
+      <tr><td>4th WHY?</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td></tr>
+      <tr><td>5th WHY?</td><td><textarea placeholder="Root cause identified here..."></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ACTIONS & RECOMMENDATIONS -->
+<div class="card">
+  <div class="header">Actions & Recommendations</div>
+  <table id="actionsTable">
+    <thead>
+      <tr><th>#</th><th>Actions / Recommendations</th><th>Value</th><th>Complexity</th><th>Urgency</th><th>Del</th></tr>
+    </thead>
+    <tbody id="actionsBody">
+      <tr>
+        <td>1</td>
+        <td><textarea placeholder="Enter action or recommendation..."></textarea></td>
+        <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
+        <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
+        <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
+        <td><button class="delete-action" title="Delete action">×</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <button class="add-btn" id="addRow">Add Row</button>
+</div>
+
+<script>
+/* === Timeline === */
+const preGrid=document.getElementById("preGrid"),postGrid=document.getElementById("postGrid");
+let preCount=0,postCount=0;
+function createRow(hasArrow){const r=document.createElement("div");r.className="timeline-row";if(hasArrow){const a=document.createElement("div");a.className="row-arrow";a.textContent="→";r.appendChild(a);}return r;}
+function createEvent(label,type){const d=document.createElement("div");d.className="event";d.innerHTML=`<button class="delete-btn">×</button><strong>${label}</strong><br><textarea placeholder="Describe event..."></textarea>`;d.querySelector(".delete-btn").addEventListener("click",()=>{const row=d.parentElement;d.remove();if(row&&row.querySelectorAll(".event").length===0)row.remove();renumberEvents(type);});return d;}
+document.getElementById("addPre").addEventListener("click",()=>{preCount++;let rows=preGrid.querySelectorAll(".timeline-row");let row=rows[rows.length-1];if(!row||row.children.length>=5){row=createRow(rows.length>0);preGrid.appendChild(row);}row.appendChild(createEvent(`Pre-Event ${preCount}`,"pre"));renumberEvents("pre");});
+document.getElementById("addPost").addEventListener("click",()=>{postCount++;let rows=postGrid.querySelectorAll(".timeline-row");let row=rows[rows.length-1];if(!row||row.children.length>=5){row=createRow(rows.length>0);postGrid.appendChild(row);}row.appendChild(createEvent(`Post-Event ${postCount}`,"post"));renumberEvents("post");});
+document.getElementById("clearPre").addEventListener("click",()=>{if(confirm("Clear all Pre-Events?")){preGrid.innerHTML="";preCount=0;}});
+document.getElementById("clearPost").addEventListener("click",()=>{if(confirm("Clear all Post-Events?")){postGrid.innerHTML="";postCount=0;}});
+function renumberEvents(type){const grid=type==="pre"?preGrid:postGrid;const ev=grid.querySelectorAll(".event strong");ev.forEach((e,i)=>e.textContent=`${type==="pre"?"Pre-Event":"Post-Event"} ${i+1}`);if(type==="pre")preCount=ev.length;else postCount=ev.length;}
+
+/* === PDF Export === */
+document.getElementById("exportPDF").addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF("p", "pt", "a4");
+  const margin = 20;
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const imgWidth = pageWidth - margin * 2;
+
+  pdf.text("Veritas Reliability — RCA Timeline + 5 Whys + Actions", margin, 30);
+
+  async function addSectionToPDF(element) {
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 50;
+    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight - position;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + 50;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+  }
+
+  const timelineClone = document.querySelector(".timeline-wrapper").closest(".card").cloneNode(true);
+  const timelineContainer = document.createElement("div");
+  timelineContainer.style.background = "#fff";
+  timelineContainer.style.padding = "20px";
+  timelineContainer.style.width = "1000px";
+  timelineContainer.appendChild(timelineClone);
+  document.body.appendChild(timelineContainer);
+  await addSectionToPDF(timelineContainer);
+  timelineContainer.remove();
+
+  pdf.addPage();
+  const combinedContainer = document.createElement("div");
+  combinedContainer.style.background = "#fff";
+  combinedContainer.style.padding = "20px";
+  combinedContainer.style.width = "1000px";
+
+  const clones = [
+    document.getElementById("detailsCard").cloneNode(true),
+    document.getElementById("whyCard").cloneNode(true),
+    document.querySelector(".card:last-of-type").cloneNode(true)
+  ];
+  clones.forEach(c => combinedContainer.appendChild(c));
+
+  document.body.appendChild(combinedContainer);
+  await addSectionToPDF(combinedContainer);
+  combinedContainer.remove();
+
+  pdf.save("Veritas_RCA_Full.pdf");
+});
+
+/* === Actions Table === */
+const actionsBody=document.getElementById("actionsBody");
+document.getElementById("addRow").onclick=()=>{const r=document.createElement("tr");r.innerHTML=`<td></td><td><textarea placeholder="Enter action or recommendation..."></textarea></td><td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td><td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td><td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td><td><button class="delete-action">×</button></td>`;actionsBody.appendChild(r);updateDeleteButtons();renumberRows();};
+function updateDeleteButtons(){actionsBody.querySelectorAll(".delete-action").forEach(b=>b.onclick=()=>{b.closest("tr").remove();renumberRows();});}
+function renumberRows(){[...actionsBody.rows].forEach((r,i)=>r.cells[0].textContent=i+1);}
+updateDeleteButtons();
+</script>
+</body>
+</html>
