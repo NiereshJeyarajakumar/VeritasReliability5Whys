@@ -32,7 +32,7 @@ button {
   border: none;
   border-radius: 10px;
   padding: 10px 16px;
-  font-weight: 400; 
+  font-weight: 400;
   cursor: pointer;
   margin: 6px 6px 0 0;
 }
@@ -40,8 +40,8 @@ button:hover { opacity: .9 }
 
 /* ✅ Section header colours */
 .header {
-  background: #0B1C36;  
-  color: #C2965B;       
+  background: #0B1C36;
+  color: #C2965B;
   font-weight: bold;
   text-align: center;
   padding: 10px;
@@ -178,8 +178,8 @@ colgroup col:not(:first-child) { width: 28.33%; }
 
 /* ✅ Table header colours updated */
 th {
-  background: #C2965B;     /* gold */
-  color: #0B1C36;          /* navy text */
+  background: #C2965B;
+  color: #0B1C36;
   font-weight: 700;
   font-size: 14px;
 }
@@ -308,7 +308,8 @@ textarea {
 </head>
 
 <body>
-<h2>Root Cause Analysis — Veritas Reliability</h2>
+
+<!-- ✅ Heading removed -->
 
 <!-- TIMELINE SECTION -->
 <div class="card">
@@ -323,6 +324,7 @@ textarea {
 
   <div class="timeline-wrapper">
     <div id="preGrid"></div>
+
     <div class="failure-wrapper">
       <div class="failure-arrow">→</div>
       <div class="failure">
@@ -331,11 +333,12 @@ textarea {
       </div>
       <div class="failure-arrow">→</div>
     </div>
+
     <div id="postGrid"></div>
   </div>
 </div>
 
-<!-- DETAILS CARD -->
+<!-- DETAILS -->
 <div id="detailsCard" class="card">
   <div class="header">Event Details</div>
   <div class="details-grid">
@@ -346,7 +349,7 @@ textarea {
   </div>
 </div>
 
-<!-- 5 WHY SECTION -->
+<!-- 5 WHY -->
 <div id="whyCard" class="card">
   <div class="header">Problem / Defect</div>
   <textarea id="problem" placeholder="Describe the problem or defect..."></textarea>
@@ -354,7 +357,12 @@ textarea {
   <table>
     <colgroup><col><col><col><col></colgroup>
     <thead>
-      <tr><th>WHY Level</th><th>What caused the specific situation?</th><th>Why wasn’t the problem detected?</th><th>What system(s) failed?</th></tr>
+      <tr>
+        <th>WHY Level</th>
+        <th>What caused the specific situation?</th>
+        <th>Why wasn’t the problem detected?</th>
+        <th>What system(s) failed?</th>
+      </tr>
     </thead>
     <tbody id="whyTable">
       <tr><td>1st WHY?</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td></tr>
@@ -366,7 +374,7 @@ textarea {
   </table>
 </div>
 
-<!-- ACTIONS & RECOMMENDATIONS -->
+<!-- ACTIONS -->
 <div class="card">
   <div class="header">Actions & Recommendations</div>
   <table id="actionsTable">
@@ -380,7 +388,7 @@ textarea {
         <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
         <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
         <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
-        <td><button class="delete-action" title="Delete action">×</button></td>
+        <td><button class="delete-action">×</button></td>
       </tr>
     </tbody>
   </table>
@@ -388,7 +396,7 @@ textarea {
 </div>
 
 <script>
-/* === Timeline === */
+/* === Timeline Logic === */
 const preGrid=document.getElementById("preGrid"),postGrid=document.getElementById("postGrid");
 let preCount=0,postCount=0;
 function createRow(hasArrow){const r=document.createElement("div");r.className="timeline-row";if(hasArrow){const a=document.createElement("div");a.className="row-arrow";a.textContent="→";r.appendChild(a);}return r;}
@@ -399,7 +407,7 @@ document.getElementById("clearPre").addEventListener("click",()=>{if(confirm("Cl
 document.getElementById("clearPost").addEventListener("click",()=>{if(confirm("Clear all Post-Events?")){postGrid.innerHTML="";postCount=0;}});
 function renumberEvents(type){const grid=type==="pre"?preGrid:postGrid;const ev=grid.querySelectorAll(".event strong");ev.forEach((e,i)=>e.textContent=`${type==="pre"?"Pre-Event":"Post-Event"} ${i+1}`);if(type==="pre")preCount=ev.length;else postCount=ev.length;}
 
-/* === PDF Export === */
+/* === PDF Export Logic === */
 document.getElementById("exportPDF").addEventListener("click", async () => {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "pt", "a4");
@@ -458,12 +466,13 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
   pdf.save("Veritas_RCA_Full.pdf");
 });
 
-/* === Actions Table === */
+/* === Actions Table Logic === */
 const actionsBody=document.getElementById("actionsBody");
 document.getElementById("addRow").onclick=()=>{const r=document.createElement("tr");r.innerHTML=`<td></td><td><textarea placeholder="Enter action or recommendation..."></textarea></td><td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td><td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td><td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td><td><button class="delete-action">×</button></td>`;actionsBody.appendChild(r);updateDeleteButtons();renumberRows();};
 function updateDeleteButtons(){actionsBody.querySelectorAll(".delete-action").forEach(b=>b.onclick=()=>{b.closest("tr").remove();renumberRows();});}
 function renumberRows(){[...actionsBody.rows].forEach((r,i)=>r.cells[0].textContent=i+1);}
 updateDeleteButtons();
 </script>
+
 </body>
 </html>
