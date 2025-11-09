@@ -252,7 +252,6 @@ td {
   text-align: center;
 }
 
-/* Actions delete button */
 .delete-action {
   background: transparent;
   border: none;
@@ -319,7 +318,7 @@ td {
         <th>What system(s) failed?</th>
       </tr>
     </thead>
-    <tbody id="whyTable">
+    <tbody>
       <tr><td>1st WHY?</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td></tr>
       <tr><td>2nd WHY?</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td></tr>
       <tr><td>3rd WHY?</td><td><textarea></textarea></td><td><textarea></textarea></td><td><textarea></textarea></td></tr>
@@ -360,9 +359,7 @@ td {
 </div>
 
 <script>
-/* ============================
-   TIMELINE LOGIC
-============================ */
+/* ============================ TIMELINE LOGIC ============================ */
 
 const preGrid = document.getElementById("preGrid");
 const postGrid = document.getElementById("postGrid");
@@ -430,9 +427,7 @@ function renumberEvents(type) {
   else postCount = grid.querySelectorAll(".event").length;
 }
 
-/* ============================
-   RESET LOGIC
-============================ */
+/* ============================ RESET LOGIC ============================ */
 
 document.getElementById("newRCA").addEventListener("click", () => {
   if (!confirm("Start a new RCA?")) return;
@@ -460,9 +455,7 @@ document.getElementById("newRCA").addEventListener("click", () => {
   alert("RCA has been reset.");
 });
 
-/* ============================
-   PDF EXPORT
-============================ */
+/* ============================ PDF EXPORT ============================ */
 
 document.getElementById("exportPDF").addEventListener("click", async () => {
   const { jsPDF } = window.jspdf;
@@ -490,6 +483,7 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
     }
   }
 
+  /* ========== PAGE 1: TIMELINE ========== */
   const tClone = document.querySelector(".timeline-wrapper").closest(".card").cloneNode(true);
   const tWrap = document.createElement("div");
   tWrap.style.background = "#fff";
@@ -499,23 +493,31 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
   await addSection(tWrap);
   tWrap.remove();
 
+  /* ========== PAGE 2: DETAILS + WHY ========== */
   pdf.addPage();
-  const blocks = document.createElement("div");
-  blocks.style.background = "#fff";
-  blocks.style.padding = "20px";
-  blocks.appendChild(document.getElementById("detailsCard").cloneNode(true));
-  blocks.appendChild(document.getElementById("whyCard").cloneNode(true));
-  blocks.appendChild(document.querySelector(".card:last-of-type").cloneNode(true));
-  document.body.appendChild(blocks);
-  await addSection(blocks);
-  blocks.remove();
+  const page2 = document.createElement("div");
+  page2.style.background = "#fff";
+  page2.style.padding = "20px";
+  page2.appendChild(document.getElementById("detailsCard").cloneNode(true));
+  page2.appendChild(document.getElementById("whyCard").cloneNode(true));
+  document.body.appendChild(page2);
+  await addSection(page2);
+  page2.remove();
+
+  /* ========== PAGE 3: ACTIONS ONLY ========== */
+  pdf.addPage();
+  const page3 = document.createElement("div");
+  page3.style.background = "#fff";
+  page3.style.padding = "20px";
+  page3.appendChild(document.querySelector(".card:last-of-type").cloneNode(true));
+  document.body.appendChild(page3);
+  await addSection(page3);
+  page3.remove();
 
   pdf.save("Veritas_RCA_Full.pdf");
 });
 
-/* ============================
-   ACTIONS TABLE
-============================ */
+/* ============================ ACTIONS TABLE ============================ */
 
 const actionsBody = document.getElementById("actionsBody");
 
@@ -558,7 +560,6 @@ renumberRows();
 ======================================= -->
 <script>
 (function () {
-  // Measure height safely
   function measureHeight() {
     const d = document;
     return Math.max(
@@ -570,7 +571,6 @@ renumberRows();
       d.documentElement.clientHeight
     );
   }
-
   function postHeight() {
     try {
       const height = measureHeight();
@@ -578,21 +578,15 @@ renumberRows();
         { type: "veritas-rca-height", height: height },
         "*"
       );
-    } catch (e) {
-      // Not inside iframe -> ignore
-    }
+    } catch (e) {}
   }
-
-  // Post on load
   window.addEventListener("load", postHeight);
 
-  // Observe changes in body size
   if ("ResizeObserver" in window) {
     const ro = new ResizeObserver(() => postHeight());
     ro.observe(document.body);
   }
 
-  // Fallback heartbeat
   let lastHeight = 0;
   setInterval(() => {
     const newHeight = document.body.scrollHeight;
