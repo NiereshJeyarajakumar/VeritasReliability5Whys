@@ -198,7 +198,6 @@ td {
   vertical-align: top;
 }
 
-/* ✅ EXACT 40px header height for WHY table */
 #whyCard table thead th {
   height: 40px !important;
   padding-top: 8px !important;
@@ -206,61 +205,6 @@ td {
   vertical-align: middle !important;
   line-height: 1.2;
 }
-
-/* ✅ EXACT 40px header height for Actions table */
-#actionsTable thead th {
-  height: 40px !important;
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-  vertical-align: middle !important;
-  line-height: 1.2;
-}
-
-/* ✅ ACTIONS TABLE COLUMN WIDTH FIX */
-#actionsTable th:first-child,
-#actionsTable td:first-child {
-  width: 6%;
-  text-align: center;
-}
-
-#actionsTable th:nth-child(2),
-#actionsTable td:nth-child(2) {
-  width: 56%;
-}
-
-#actionsTable th:nth-child(3),
-#actionsTable td:nth-child(3) {
-  width: 12%;
-  text-align: center;
-}
-
-#actionsTable th:nth-child(4),
-#actionsTable td:nth-child(4) {
-  width: 12%;
-  text-align: center;
-}
-
-#actionsTable th:nth-child(5),
-#actionsTable td:nth-child(5) {
-  width: 12%;
-  text-align: center;
-}
-
-#actionsTable th:nth-child(6),
-#actionsTable td:nth-child(6) {
-  width: 2%;
-  text-align: center;
-}
-
-.delete-action {
-  background: transparent;
-  border: none;
-  color: #C2965B;
-  font-size: 18px;
-  cursor: pointer;
-  font-weight: bold;
-}
-.delete-action:hover { color: #000; }
 </style>
 </head>
 
@@ -439,7 +383,6 @@ document.getElementById("newRCA").addEventListener("click", () => {
 
   document.getElementById("failureDesc").value = "";
   document.querySelectorAll("#detailsCard input").forEach(i => i.value = "");
-  document.querySelectorAll("#whyCard table textarea").forEach(t => t.value = "");
   document.getElementById("problem").value = "";
 
   actionsBody.innerHTML = `
@@ -452,7 +395,6 @@ document.getElementById("newRCA").addEventListener("click", () => {
       <td><button class="delete-action">×</button></td>
     </tr>`;
   updateDeleteButtons();
-  alert("RCA has been reset.");
 });
 
 /* ============================ PDF EXPORT ============================ */
@@ -483,7 +425,6 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
     }
   }
 
-  /* ========== PAGE 1: TIMELINE ========== */
   const tClone = document.querySelector(".timeline-wrapper").closest(".card").cloneNode(true);
   const tWrap = document.createElement("div");
   tWrap.style.background = "#fff";
@@ -493,7 +434,6 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
   await addSection(tWrap);
   tWrap.remove();
 
-  /* ========== PAGE 2: DETAILS + WHY ========== */
   pdf.addPage();
   const page2 = document.createElement("div");
   page2.style.background = "#fff";
@@ -504,7 +444,6 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
   await addSection(page2);
   page2.remove();
 
-  /* ========== PAGE 3: ACTIONS ONLY ========== */
   pdf.addPage();
   const page3 = document.createElement("div");
   page3.style.background = "#fff";
@@ -556,45 +495,55 @@ renumberRows();
 </script>
 
 <!-- =======================================
-     AUTO-RESIZE SCRIPT FOR WORDPRESS IFRAME
+     SHADOW DOM ISOLATION FOR WHY TABLE
 ======================================= -->
 <script>
-(function () {
-  function measureHeight() {
-    const d = document;
-    return Math.max(
-      d.body.scrollHeight,
-      d.documentElement.scrollHeight,
-      d.body.offsetHeight,
-      d.documentElement.offsetHeight,
-      d.body.clientHeight,
-      d.documentElement.clientHeight
-    );
-  }
-  function postHeight() {
-    try {
-      const height = measureHeight();
-      window.parent.postMessage(
-        { type: "veritas-rca-height", height: height },
-        "*"
-      );
-    } catch (e) {}
-  }
-  window.addEventListener("load", postHeight);
+(function() {
+  const whyCard = document.getElementById("whyCard");
+  const originalTable = whyCard.querySelector("table");
+  const container = document.createElement("div");
+  container.appendChild(originalTable);
 
-  if ("ResizeObserver" in window) {
-    const ro = new ResizeObserver(() => postHeight());
-    ro.observe(document.body);
-  }
+  const shadowHost = document.createElement("div");
+  shadowHost.style.width = "100%";
 
-  let lastHeight = 0;
-  setInterval(() => {
-    const newHeight = document.body.scrollHeight;
-    if (Math.abs(newHeight - lastHeight) > 10) {
-      lastHeight = newHeight;
-      postHeight();
+  const shadow = shadowHost.attachShadow({ mode: "open" });
+  shadow.appendChild(container);
+
+  whyCard.appendChild(shadowHost);
+
+  const style = document.createElement("style");
+  style.textContent = `
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
     }
-  }, 800);
+    th {
+      background: #C2965B;
+      color: #0B1C36;
+      font-weight: 700;
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #000;
+    }
+    td {
+      border: 1px solid #000;
+      padding: 8px;
+      vertical-align: top;
+    }
+    textarea {
+      width: 100%;
+      min-height: 60px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 10px;
+      resize: vertical;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+  `;
+  shadow.appendChild(style);
 })();
 </script>
 
