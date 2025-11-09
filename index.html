@@ -49,34 +49,50 @@ button:hover { opacity: .9 }
   font-size: 16px;
 }
 
-/* TIMELINE SECTION */
+/* TIMELINE SECTION — FIXED */
 .timeline-wrapper {
   margin-top: 25px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 30px;
+
+  /* ✅ Prevent overflow */
+  width: 100%;
+  overflow-x: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
 }
+
+/* ✅ Rows wrap inside card instead of pushing out */
 .timeline-row {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 20px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap; 
+  width: 100%;
   margin-top: 10px;
 }
+
 .row-arrow {
   font-weight: bold;
   font-size: 20px;
   color: #000;
   margin-right: 8px;
 }
+
+/* ✅ Event box becomes responsive */
 .event {
   position: relative;
   width: 180px;
+  max-width: 180px;
+  flex: 1 1 160px;
   text-align: center;
   flex-shrink: 0;
 }
+
 .event::after {
   content: "→";
   position: absolute;
@@ -87,6 +103,7 @@ button:hover { opacity: .9 }
   color: #000;
 }
 .event:last-child::after { content: ""; }
+
 .delete-btn {
   position: absolute;
   top: 2px;
@@ -100,6 +117,7 @@ button:hover { opacity: .9 }
   line-height: 1;
 }
 .delete-btn:hover { color: #C2965B; }
+
 .event textarea {
   width: 100%;
   min-height: 60px;
@@ -176,7 +194,6 @@ table {
 colgroup col:first-child { width: 15%; }
 colgroup col:not(:first-child) { width: 28.33%; }
 
-/* ✅ Table header colours updated */
 th {
   background: #C2965B;
   color: #0B1C36;
@@ -191,7 +208,6 @@ td {
   text-align: left;
 }
 
-/* ✅ Reduced header height */
 table thead tr th {
   padding-top: 10px !important;
   padding-bottom: 10px !important;
@@ -238,7 +254,6 @@ textarea {
   table-layout: fixed;
 }
 
-/* ✅ Actions table header colours updated */
 #actionsTable th {
   background: #C2965B;
   color: #0B1C36;
@@ -258,7 +273,11 @@ textarea {
 }
 
 #actionsTable th:first-child,
-#actionsTable td:first-child { width: 5%; text-align: center; font-weight: bold; }
+#actionsTable td:first-child {
+  width: 5%;
+  text-align: center;
+  font-weight: bold;
+}
 
 #actionsTable th:nth-child(2),
 #actionsTable td:nth-child(2) { width: 58%; }
@@ -268,7 +287,10 @@ textarea {
 #actionsTable th:nth-child(5),
 #actionsTable td:nth-child(3),
 #actionsTable td:nth-child(4),
-#actionsTable td:nth-child(5) { width: 12%; text-align: center; }
+#actionsTable td:nth-child(5) {
+  width: 12%;
+  text-align: center;
+}
 
 #actionsTable th:nth-child(6),
 #actionsTable td:nth-child(6) { width: 5%; text-align: center; }
@@ -303,13 +325,10 @@ textarea {
   font-weight: bold;
 }
 .delete-action:hover { color: #000; }
-
 </style>
 </head>
 
 <body>
-
-<!-- ✅ Heading removed -->
 
 <!-- TIMELINE SECTION -->
 <div class="card">
@@ -405,7 +424,7 @@ document.getElementById("addPre").addEventListener("click",()=>{preCount++;let r
 document.getElementById("addPost").addEventListener("click",()=>{postCount++;let rows=postGrid.querySelectorAll(".timeline-row");let row=rows[rows.length-1];if(!row||row.children.length>=5){row=createRow(rows.length>0);postGrid.appendChild(row);}row.appendChild(createEvent(`Post-Event ${postCount}`,"post"));renumberEvents("post");});
 document.getElementById("clearPre").addEventListener("click",()=>{if(confirm("Clear all Pre-Events?")){preGrid.innerHTML="";preCount=0;}});
 document.getElementById("clearPost").addEventListener("click",()=>{if(confirm("Clear all Post-Events?")){postGrid.innerHTML="";postCount=0;}});
-function renumberEvents(type){const grid=type==="pre"?preGrid:postGrid;const ev=grid.querySelectorAll(".event strong");ev.forEach((e,i)=>e.textContent=`${type==="pre"?"Pre-Event":"Post-Event"} ${i+1}`);if(type==="pre")preCount=ev.length;else postCount=ev.length;}
+function renumberEvents(type){const grid=type==="pre"?preGrid:postGrid;const ev=grid.querySelectorAll(".event strong");ev.forEach((e,i)=>e.textContent=`${type==="pre"?"Pre-Event":"Post-Event"} ${i+1}`);if(type==="pre")preCount=ev.length;else postCount=ev.length;};
 
 /* === PDF Export Logic === */
 document.getElementById("exportPDF").addEventListener("click", async () => {
@@ -468,9 +487,30 @@ document.getElementById("exportPDF").addEventListener("click", async () => {
 
 /* === Actions Table Logic === */
 const actionsBody=document.getElementById("actionsBody");
-document.getElementById("addRow").onclick=()=>{const r=document.createElement("tr");r.innerHTML=`<td></td><td><textarea placeholder="Enter action or recommendation..."></textarea></td><td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td><td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td><td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td><td><button class="delete-action">×</button></td>`;actionsBody.appendChild(r);updateDeleteButtons();renumberRows();};
-function updateDeleteButtons(){actionsBody.querySelectorAll(".delete-action").forEach(b=>b.onclick=()=>{b.closest("tr").remove();renumberRows();});}
-function renumberRows(){[...actionsBody.rows].forEach((r,i)=>r.cells[0].textContent=i+1);}
+document.getElementById("addRow").onclick=()=>{
+  const r=document.createElement("tr");
+  r.innerHTML=`<td></td><td><textarea placeholder="Enter action or recommendation..."></textarea></td>
+               <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
+               <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
+               <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
+               <td><button class="delete-action">×</button></td>`;
+  actionsBody.appendChild(r);
+  updateDeleteButtons();
+  renumberRows();
+};
+
+function updateDeleteButtons(){
+  actionsBody.querySelectorAll(".delete-action")
+    .forEach(b=>b.onclick=()=>{
+      b.closest("tr").remove();
+      renumberRows();
+    });
+}
+
+function renumberRows(){
+  [...actionsBody.rows].forEach((r,i)=>r.cells[0].textContent=i+1);
+}
+
 updateDeleteButtons();
 </script>
 
