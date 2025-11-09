@@ -38,6 +38,15 @@ button {
 }
 button:hover { opacity: .9 }
 
+/* ✅ New RCA button styling */
+#newRCA {
+  background: #0B1C36;
+  color: #C2965B;
+}
+#newRCA:hover {
+  opacity: 0.9;
+}
+
 /* ✅ Section header colours */
 .header {
   background: #0B1C36;
@@ -56,8 +65,6 @@ button:hover { opacity: .9 }
   flex-direction: column;
   align-items: center;
   gap: 30px;
-
-  /* ✅ Prevent overflow */
   width: 100%;
   overflow-x: auto;
   padding-left: 10px;
@@ -65,13 +72,12 @@ button:hover { opacity: .9 }
   padding-bottom: 10px;
 }
 
-/* ✅ Rows wrap inside card instead of pushing out */
 .timeline-row {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   gap: 20px;
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
   width: 100%;
   margin-top: 10px;
 }
@@ -83,7 +89,6 @@ button:hover { opacity: .9 }
   margin-right: 8px;
 }
 
-/* ✅ Event box becomes responsive */
 .event {
   position: relative;
   width: 180px;
@@ -104,6 +109,7 @@ button:hover { opacity: .9 }
 }
 .event:last-child::after { content: ""; }
 
+/* Delete button */
 .delete-btn {
   position: absolute;
   top: 2px;
@@ -118,14 +124,19 @@ button:hover { opacity: .9 }
 }
 .delete-btn:hover { color: #C2965B; }
 
+/* ✅ DARK BLUE THICK BORDER FOR EVENT ENTRY BOXES */
 .event textarea {
   width: 100%;
   min-height: 60px;
-  border: 1px solid #cbd5e1;
+  border: 2px solid #0B1C36;
   border-radius: 6px;
   padding: 6px;
   resize: vertical;
   box-sizing: border-box;
+}
+.event textarea:focus {
+  border: 3px solid #0B1C36;
+  outline: none;
 }
 
 /* Failure card */
@@ -339,6 +350,7 @@ textarea {
     <button id="addPost">Add Post-Event</button>
     <button id="clearPost">Clear All Post-Events</button>
     <button id="exportPDF">Download RCA as PDF</button>
+    <button id="newRCA">New RCA</button>
   </div>
 
   <div class="timeline-wrapper">
@@ -425,6 +437,46 @@ document.getElementById("addPost").addEventListener("click",()=>{postCount++;let
 document.getElementById("clearPre").addEventListener("click",()=>{if(confirm("Clear all Pre-Events?")){preGrid.innerHTML="";preCount=0;}});
 document.getElementById("clearPost").addEventListener("click",()=>{if(confirm("Clear all Post-Events?")){postGrid.innerHTML="";postCount=0;}});
 function renumberEvents(type){const grid=type==="pre"?preGrid:postGrid;const ev=grid.querySelectorAll(".event strong");ev.forEach((e,i)=>e.textContent=`${type==="pre"?"Pre-Event":"Post-Event"} ${i+1}`);if(type==="pre")preCount=ev.length;else postCount=ev.length;};
+
+/* === New RCA Reset Logic === */
+document.getElementById("newRCA").addEventListener("click", () => {
+  if (!confirm("Start a new RCA? This will clear all entered information.")) return;
+
+  // Clear Pre/Post Events
+  preGrid.innerHTML = "";
+  postGrid.innerHTML = "";
+  preCount = 0;
+  postCount = 0;
+
+  // Clear Failure description
+  document.getElementById("failureDesc").value = "";
+
+  // Clear Event Details
+  document.querySelectorAll("#detailsCard input").forEach(input => input.value = "");
+
+  // Clear Why section fields
+  document.querySelectorAll("#whyTable textarea").forEach(t => t.value = "");
+
+  // Clear Problem/Defect
+  document.getElementById("problem").value = "";
+
+  // Reset Actions table
+  actionsBody.innerHTML = `
+    <tr>
+      <td>1</td>
+      <td><textarea placeholder="Enter action or recommendation..."></textarea></td>
+      <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
+      <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
+      <td><select><option></option><option>High</option><option>Medium</option><option>Low</option></select></td>
+      <td><button class="delete-action">×</button></td>
+    </tr>
+  `;
+
+  // Reattach delete handler
+  updateDeleteButtons();
+
+  alert("RCA has been reset. You can begin a fresh analysis.");
+});
 
 /* === PDF Export Logic === */
 document.getElementById("exportPDF").addEventListener("click", async () => {
