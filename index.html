@@ -216,7 +216,7 @@ td {
   line-height: 1.2;
 }
 
-/* ✅ ACTIONS TABLE COLUMN WIDTH FIX — ONLY CHANGE */
+/* ✅ ACTIONS TABLE COLUMN WIDTH FIX */
 #actionsTable th:first-child,
 #actionsTable td:first-child {
   width: 6%;
@@ -551,6 +551,57 @@ function renumberRows() {
 
 updateDeleteButtons();
 renumberRows();
+</script>
+
+<!-- =======================================
+     AUTO-RESIZE SCRIPT FOR WORDPRESS IFRAME
+======================================= -->
+<script>
+(function () {
+  // Measure height safely
+  function measureHeight() {
+    const d = document;
+    return Math.max(
+      d.body.scrollHeight,
+      d.documentElement.scrollHeight,
+      d.body.offsetHeight,
+      d.documentElement.offsetHeight,
+      d.body.clientHeight,
+      d.documentElement.clientHeight
+    );
+  }
+
+  function postHeight() {
+    try {
+      const height = measureHeight();
+      window.parent.postMessage(
+        { type: "veritas-rca-height", height: height },
+        "*"
+      );
+    } catch (e) {
+      // Not inside iframe -> ignore
+    }
+  }
+
+  // Post on load
+  window.addEventListener("load", postHeight);
+
+  // Observe changes in body size
+  if ("ResizeObserver" in window) {
+    const ro = new ResizeObserver(() => postHeight());
+    ro.observe(document.body);
+  }
+
+  // Fallback heartbeat
+  let lastHeight = 0;
+  setInterval(() => {
+    const newHeight = document.body.scrollHeight;
+    if (Math.abs(newHeight - lastHeight) > 10) {
+      lastHeight = newHeight;
+      postHeight();
+    }
+  }, 800);
+})();
 </script>
 
 </body>
